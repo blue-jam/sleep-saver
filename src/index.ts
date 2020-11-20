@@ -21,11 +21,11 @@ export function run(): void {
     });
 }
 
-export const muteEvent = (
+export function muteEvent(
     event: GoogleAppsScript.Calendar.CalendarEvent,
     Logger: GoogleAppsScript.Base.Logger,
     guestStatusNo: GoogleAppsScript.Calendar.GuestStatus
-): void => {
+): void {
     Logger.log(`Processing "${event.getTitle()}" (id=${event.getId()})`);
 
     if (!event.isAllDayEvent()) {
@@ -34,4 +34,5 @@ export const muteEvent = (
     }
     event.removeAllReminders();
     Logger.log(`Removed all reminders for ${event.getId()}`);
-};
+}
+
