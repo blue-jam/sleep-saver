@@ -5,19 +5,25 @@ const Logger = {
 };
 
 enum GuestStatus {
-    NO,
+    NO, YES
 }
 
 describe('App', () => {
-    it('mute calendar event', () => {
-        const event = {
+    let event;
+
+    beforeEach(() => {
+        event = {
             getTitle: () => 'event title',
             getId: () => 'eventId',
             isAllDayEvent: () => false,
             setMyStatus: jest.fn(),
+            getMyStatus: () => GuestStatus.YES,
             removeAllReminders: jest.fn(),
+            isOwnedByMe: () => false,
         };
+    });
 
+    it('mute calendar event', () => {
         // @ts-ignore
         muteEvent(event, Logger, GuestStatus.NO);
 
@@ -27,19 +33,24 @@ describe('App', () => {
     });
 
     it('mute all day event', () => {
-        const event = {
-            getTitle: () => 'event title',
-            getId: () => 'eventId',
-            isAllDayEvent: () => true,
-            setMyStatus: jest.fn(),
-            removeAllReminders: jest.fn(),
-        };
+        event.isAllDayEvent = () => true;
 
         // @ts-ignore
         muteEvent(event, Logger, GuestStatus.NO);
 
         expect(event.setMyStatus).not.toHaveBeenCalled();
         expect(event.removeAllReminders).toHaveBeenCalled();
+        expect(Logger.log).toHaveBeenCalled();
+    });
+
+    it('do not modify event if it is my event', () => {
+        event.isOwnedByMe = () => true;
+
+        // @ts-ignore
+        muteEvent(event, Logger, GuestStatus.NO);
+
+        expect(event.setMyStatus).not.toHaveBeenCalled();
+        expect(event.removeAllReminders).not.toHaveBeenCalled();
         expect(Logger.log).toHaveBeenCalled();
     });
 });

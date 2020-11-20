@@ -28,7 +28,13 @@ export function muteEvent(
 ): void {
     Logger.log(`Processing "${event.getTitle()}" (id=${event.getId()})`);
 
-    if (!event.isAllDayEvent()) {
+    if (event.isOwnedByMe()) {
+        Logger.log(`Skip processing "${event.getTitle()}" because it's owned by me.`);
+
+        return;
+    }
+
+    if (!event.isAllDayEvent() && event.getMyStatus() !== guestStatusNo) {
         event.setMyStatus(guestStatusNo);
         Logger.log(`Set status of the event ${event.getId()} to "NO"`);
     }
