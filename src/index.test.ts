@@ -5,13 +5,18 @@ const Logger = {
 };
 
 enum GuestStatus {
-    NO, YES
+    NO,
+    YES,
+    OWNER,
 }
 
 describe('App', () => {
     let event;
 
     beforeEach(() => {
+        // @ts-ignore
+        global.CalendarApp = { GuestStatus };
+
         event = {
             getTitle: () => 'event title',
             getId: () => 'eventId',
@@ -45,6 +50,18 @@ describe('App', () => {
 
     it('do not modify event if it is my event', () => {
         event.isOwnedByMe = () => true;
+
+        // @ts-ignore
+        muteEvent(event, Logger, GuestStatus.NO);
+
+        expect(event.setMyStatus).not.toHaveBeenCalled();
+        expect(event.removeAllReminders).not.toHaveBeenCalled();
+        expect(Logger.log).toHaveBeenCalled();
+    });
+
+    it('do not modify event if it is my Out Of Office event', () => {
+        event.isOwnedByMe = () => true;
+        event.getMyStatus = () => GuestStatus.OWNER;
 
         // @ts-ignore
         muteEvent(event, Logger, GuestStatus.NO);

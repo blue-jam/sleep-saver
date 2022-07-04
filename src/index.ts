@@ -28,7 +28,7 @@ export function muteEvent(
 ): void {
     Logger.log(`Processing "${event.getTitle()}" (id=${event.getId()})`);
 
-    if (event.isOwnedByMe()) {
+    if (isMyEvent(event)) {
         Logger.log(`Skip processing "${event.getTitle()}" because it's owned by me.`);
 
         return;
@@ -42,3 +42,8 @@ export function muteEvent(
     Logger.log(`Removed all reminders for ${event.getId()}`);
 }
 
+function isMyEvent(event: GoogleAppsScript.Calendar.CalendarEvent) {
+    // event.isOwnedByMe() returns false if the event is Out Of Office.
+    // Double check with the event.getMyStatus() for that case.
+    return event.isOwnedByMe() || event.getMyStatus() == CalendarApp.GuestStatus.OWNER;
+}
